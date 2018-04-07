@@ -12,31 +12,7 @@
 
     <!-- Styles -->
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
-    {{--<style type="text/css">
-        .footer {
-            position: absolute;
-            bottom: 0;
-            width: 100%;
-            /* Set the fixed height of the footer here */
-            height: 60px;
-            background-color: #000;
-        }
-
-        .footer .container{
-            padding-right: 15px;
-            padding-left: 15px;
-        }
-
-        .footer .container p{
-            margin: 19px 0;
-            color: #c1c1c1;
-        }
-
-        .footer .container a{
-            padding-right: 15px;
-            padding-left: 15px;
-        }
-    </style>--}}
+    @yield('styles')
 </head>
 
 <body>
@@ -45,7 +21,7 @@
     @include('layouts._header')
 
     <div class="container">
-        
+
         @include('layouts._message')
         @yield('content')
 
@@ -54,7 +30,9 @@
     @include('layouts._footer')
 </div>
 
-<!-- Scripts -->
-<script src="{{ asset('js/app.js') }}"></script>
+    <!-- Scripts -->
+    <script src="{{ asset('js/app.js') }}"></script>
+    @yield('scripts')
+
 </body>
 </html>
