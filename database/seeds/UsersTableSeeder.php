@@ -38,7 +38,7 @@ class UsersTableSeeder extends Seeder
         //插入到数据库中
         User::insert($user_array);
 
-        $user = User::find(1);
+        $user = User::find(11);
         $user->name = 'ying';
         $user->email = '766019882@qq.com';
         $user->avatar = 'https://fsdhubcdn.phphub.org/uploads/images/201710/14/1/ZqM7iaP4CR.png?imageView2/1/w/200/h/200';
