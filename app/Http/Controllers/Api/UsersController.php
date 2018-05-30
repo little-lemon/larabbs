@@ -36,9 +36,9 @@ class UsersController extends Controller
         return $this->response->item($user, new UserTransformer())
             ->setMeta([
                 'access_token' => \Auth::guard('api')->fromUser($user),
-                'token_type' => 'Bearer',
-                'expires_in' => \Auth::guard('api')->factory()->getTTL() * 60
-            ]) ->setStatusCode(201);
+                'token_type'   => 'Bearer',
+                'expires_in'   => \Auth::guard('api')->factory()->getTTL() * 60
+            ])->setStatusCode(201);
     }
 
     public function me()
@@ -52,7 +52,7 @@ class UsersController extends Controller
 
         $attributes = $request->only(['name', 'email', 'introduction']);
 
-        if($request->avatar_image_id){
+        if ($request->avatar_image_id) {
             $image = Image::find($request->avatar_image_id);
 
             $attributes['avatar'] = $image->path;
@@ -60,5 +60,10 @@ class UsersController extends Controller
         $user->update($attributes);
 
         return $this->response->item($user, new UserTransformer());
+    }
+
+    public function activedIndex(User $user)
+    {
+        return $this->response->collection($user->getActiveUsers(), new UserTransformer());
     }
 }
