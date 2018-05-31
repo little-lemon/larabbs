@@ -35,7 +35,7 @@ class User extends Authenticatable implements JWTSubject
      * @var array
      */
     protected $fillable = [
-        'name', 'phone','email', 'password','introduction','avatar', 'weixin_openid', 'weixin_unionid'
+        'name', 'phone','email', 'password','introduction','avatar', 'weixin_openid', 'weixin_unionid','registration_id'
     ];
 
     /**
@@ -86,7 +86,8 @@ class User extends Authenticatable implements JWTSubject
         // 如果不是 `http` 子串开头，那就是从后台上传的，需要补全 URL
         if( ! starts_with($path, 'http')){
             // 拼接完整的 URL
-            $path = config('app.url') . "/uploads/images/avatars/$path";
+//            $path = config('app.url') . "/uploads/images/avatars/$path";
+            $path = config('app.url') . "$path";
         }
         $this->attributes['avatar'] = $path;
     }
