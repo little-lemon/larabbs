@@ -11,10 +11,13 @@ use Zend\Diactoros\Response as Psr7Response;
 use Psr\Http\Message\ServerRequestInterface;
 use League\OAuth2\Server\Exception\OAuthServerException;
 use League\OAuth2\Server\AuthorizationServer;
+use App\Traits\PassportToken;
 
 
 class AuthorizationsController extends Controller
 {
+    use PassportToken;
+
     public function socialStore($type, SocialAuthorizationRequest $request)
     {
         if (! in_array($type, ['weixin'])) {
@@ -29,12 +32,10 @@ class AuthorizationsController extends Controller
                 $token = array_get($response, 'access_token');
             } else {
                 $token = $request->access_token;
-
                 if ($type == 'weixin') {
                     $driver->setOpenId($request->openid);
                 }
             }
-
             $oauthUser = $driver->userFromToken($token);
         } catch (\Exception $e) {
             return $this->response->errorUnauthorized('参数错误，未获取用户信息');
@@ -42,7 +43,7 @@ class AuthorizationsController extends Controller
 
         switch ($type) {
             case 'weixin':
-                /*$unionid = $oauthUser->offsetExists('unionid') ? $oauthUser->offsetGet('unionid') : null;
+                $unionid = $oauthUser->offsetExists('unionid') ? $oauthUser->offsetGet('unionid') : null;
 
                 if ($unionid) {
                     $user = User::where('weixin_unionid', $unionid)->first();
@@ -58,9 +59,9 @@ class AuthorizationsController extends Controller
                         'weixin_openid'  => $oauthUser->getId(),
                         'weixin_unionid' => $unionid,
                     ]);
-                }*/
+                }
 
-                $user = User::where('weixin_unionid', $oauthUser->offsetGet('unionid'))->first();
+                /*$user = User::where('weixin_unionid', $oauthUser->offsetGet('unionid'))->first();
                 if (! $user) {
                     $user = User::create([
                         'name'           => $oauthUser->getNickname(),
@@ -68,13 +69,13 @@ class AuthorizationsController extends Controller
                         'weixin_openid'  => $oauthUser->getId(),
                         'weixin_unionid' => $oauthUser->offsetGet('unionid'),
                     ]);
-                }
+                }*/
 
-                $token = Auth::guard('api')->fromUser($user);
-                return $this->respondWithToken($token)->setStatusCode(201);
+                break;
         }
 
-        return $this->response->array(['token' => $user->id]);
+        $result = $this->getBearerTokenByUser($user, '1', false);
+        return $this->response->array($result)->setStatusCode(201);
     }
 
     /*public function store(AuthorizationRequest $request)
@@ -92,11 +93,11 @@ class AuthorizationsController extends Controller
         return $this->respondWithToken($token)->setStatusCode(201);
     }*/
 
-    public function store(AuthorizationRequest $originRequest,AuthorizationServer $server,ServerRequestInterface $serverRequest)
+    public function store(AuthorizationRequest $originRequest, AuthorizationServer $server, ServerRequestInterface $serverRequest)
     {
-        try{
-            return $server->respondToAccessTokenRequest($serverRequest,new Psr7Response)->withStatus(201);
-        }catch(oAuthServerException $e){
+        try {
+            return $server->respondToAccessTokenRequest($serverRequest, new Psr7Response)->withStatus(201);
+        } catch (oAuthServerException $e) {
             return $this->response->errorUnauthorized($e->getMessage());
         }
     }
@@ -111,7 +112,7 @@ class AuthorizationsController extends Controller
     {
         try {
             return $server->respondToAccessTokenRequest($serverRequest, new Psr7Response);
-        } catch(OAuthServerException $e) {
+        } catch (OAuthServerException $e) {
             return $this->response->errorUnauthorized($e->getMessage());
         }
     }
@@ -120,8 +121,8 @@ class AuthorizationsController extends Controller
     {
         return $this->response->array([
             'access_token' => $token,
-            'token_type' => 'Bearer',
-            'expires_in' => \Auth::guard('api')->factory()->getTTL() * 60
+            'token_type'   => 'Bearer',
+            'expires_in'   => \Auth::guard('api')->factory()->getTTL() * 60
         ]);
     }
 
